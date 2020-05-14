@@ -1,5 +1,5 @@
 const express = require('express');
-const Hubs = require('./db.js');
+const Hubs = require('../db.js');
 const router = express.Router();
 
 router.get('/', (req, res) => {
