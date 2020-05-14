@@ -1,9 +1,9 @@
 const express = require('express');
 const server = express();
-const hubsRouter = require('./data/router/post-router.js');
+const dbRouter = require('./data/router/post-router.js');
 
 server.use(express.json());
-server.use('/api/posts', hubsRouter);
+server.use('/api/posts', dbRouter);
 
 server.get('/', (req, res) => {
   res.send(`

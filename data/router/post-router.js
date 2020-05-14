@@ -1,47 +1,49 @@
 const express = require('express');
-const Hubs = require('../db.js');
+const Db = require('../db.js');
 const router = express.Router();
 
+// Gets
+// Retrieve posts
 router.get('/', (req, res) => {
-  Hubs.find(req.query)
-  .then(hubs => {
-    res.status(200).json(hubs);
+  Db.find()
+  .then(post => {
+    res.status(200).json(post)
   })
   .catch(error => {
-    // log error to database
-    console.log(error);
-    res.status(500).json({
-      message: 'Error retrieving the hubs',
-    });
+    res.status(500).json({error: "The posts information could not be retrieved."});
   });
 });
 
+// Retrieve particular post
 router.get('/:id', (req, res) => {
-  Hubs.findById(req.params.id)
-  .then(hub => {
-    if (hub) {
-      res.status(200).json(hub);
-    } else {
-      res.status(404).json({ message: 'Hub not found' });
-    }
+  const id = req.params.id;
+
+  Db.findById(id)
+  .then(post => {
+    // if (post) {
+    //   res.status(200).json(post);
+    // } else {
+    //   res.status(404).json({message: "The post with the specified ID does not exist." });
+    // }
+    post ? res.status(200).json(post) : res.status(404).json({ message: 'That Post ID Does NOT Exist' })
+		})
+		.catch(err => {
+			res.status(500).json({ message: 'The Post Could Not Be Found' })
   })
   .catch(error => {
-    // log error to database
     console.log(error);
-    res.status(500).json({
-      message: 'Error retrieving the hub',
-    });
+    res.status(500).json({error: "The post information could not be retrieved."});
   });
 });
 
-// new here. get messages from id
-router.get('/:id/messages', (req, res) => {
-  Hubs.findHubMessages(req.params.id)
+// Retrieve comment from a particular id
+router.get('/:id/comments', (req, res) => {
+  Db.findPostComments(req.params.id)
     .then(messages => {
       if(messages.length > 0) {
         res.status(200).json(messages);
       } else {
-        res.status(404).json({message: 'no messages found'})
+        res.status(404).json({message: 'The post with the specified ID does not exist.'})
       }
     })
     .catch(err => {
@@ -50,7 +52,7 @@ router.get('/:id/messages', (req, res) => {
 })
 
 router.post('/', (req, res) => {
-  Hubs.add(req.body)
+  Db.add(req.body)
   .then(hub => {
     res.status(201).json(hub);
   })
@@ -64,7 +66,7 @@ router.post('/', (req, res) => {
 });
 
 router.delete('/:id', (req, res) => {
-  Hubs.remove(req.params.id)
+  Db.remove(req.params.id)
   .then(count => {
     if (count > 0) {
       res.status(200).json({ message: 'The hub has been nuked' });
@@ -83,7 +85,7 @@ router.delete('/:id', (req, res) => {
 
 router.put('/:id', (req, res) => {
   const changes = req.body;
-  Hubs.update(req.params.id, changes)
+  Db.update(req.params.id, changes)
   .then(hub => {
     if (hub) {
       res.status(200).json(hub);
